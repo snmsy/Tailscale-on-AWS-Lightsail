@@ -1,7 +1,19 @@
 # Tailscale-on-AWS-Lightsail
 
+## 構成図
 
-## AWS credentials
+![構成図](Tailscale-on-AWS-Lightsail.jpg)
+
+## 事前準備
+
+1. Tailscale のアカウント作成
+2. 管理コンソールの `Settings > Keys > Auth Keys` から auth key を発行
+   - Reusable : Off (使い回し不可)
+   - Ephemeral : Off (定常的に使う)
+
+## デプロイ
+
+### AWS credentials
 
 ```bash
 $ cp ./aws/credentials.example ./aws/credentials
@@ -23,11 +35,11 @@ sts get-caller-identity
 ```
 
 
-## デプロイ
+### デプロイ
 
-### lightsail インスタンスのデプロイ
+#### lightsail インスタンスのデプロイ
 
-⚠️ `tskey-xxxxxxxxxxxxxxxxxxxxxxxx` を部分を正しい値に差し替え
+⚠️ `tskey-xxxxxxxxxxxxxxxxxxxxxxxx` を部分を事前発行した auth key に差し替え
 
 ``` bash
 docker run --rm -it -v ./aws:/root/.aws -v $(pwd):/aws amazon/aws-cli \
@@ -39,7 +51,7 @@ cloudformation deploy \
   --parameter-overrides TailscaleAuthKey=tskey-xxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-### 固定IPのアタッチ
+#### 固定IPのアタッチ
 
 ```bash
 docker run --rm -it -v ./aws:/root/.aws amazon/aws-cli \
@@ -48,9 +60,9 @@ lightsail attach-static-ip \
   --instance-name TailScaleExitNode
 ```
 
-## 削除
+### 削除
 
-### 固定IPのデタッチ
+#### 固定IPのデタッチ
 
 ``` bash
 docker run --rm -it -v ./aws:/root/.aws amazon/aws-cli \
@@ -59,7 +71,7 @@ lightsail detach-static-ip \
 ```
 
 
-###  lightsail インスタンスの削除
+####  lightsail インスタンスの削除
 ```bash
 docker run --rm -it -v ./aws:/root/.aws -v $(pwd):/aws amazon/aws-cli \
 cloudformation delete-stack --stack-name tailscale-exit-node
